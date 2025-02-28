@@ -9,7 +9,8 @@ import java.util.Scanner;
 
 public class VehicleRepository implements IVehicleRepositotry{
 
-    public static void rentVehicle(int id){
+    @Override
+    public void rentVehicle(int id){
         for(Vehicle v : vehicles){
             if ( v.ID == id && v.rented == false){
                 v.rented = true;
@@ -18,7 +19,8 @@ public class VehicleRepository implements IVehicleRepositotry{
         save();
         getVehicle();
     }
-    public static void returnVehicle(int id){
+    @Override
+    public void returnVehicle(int id){
         for(Vehicle v : vehicles){
             if ( v.ID == id && v.rented == true){
                 v.rented = false;
@@ -27,7 +29,8 @@ public class VehicleRepository implements IVehicleRepositotry{
         save();
         getVehicle();
     }
-    public static void getVehicle(){
+    @Override
+    public void getVehicle(){
         try{
             List<Vehicle> newVeh = new ArrayList<>();
 
@@ -70,7 +73,8 @@ public class VehicleRepository implements IVehicleRepositotry{
             e.printStackTrace();
         }
     }
-    public static void save(){
+    @Override
+    public void save(){
         try {
             File fold = new File("src/vehicles.txt");
             fold.delete();
