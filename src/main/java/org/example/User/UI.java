@@ -71,6 +71,8 @@ public class UI {
                 }else if(s.split(" ")[0].equals("remove")){
                     repo.removeVehicle(Integer.parseInt(s.split(" ")[1]),userRepo);
                 }else if(s.equals("show users")){
+                    userRepo.getUsers();
+                    repo.getVehicle();
                     for (User u :userRepo.userList){
                         if (u.getRentedHash() != -1){
                             for (Vehicle v : repo.getList()){
@@ -87,6 +89,9 @@ public class UI {
             }
             if (s.equals("show")){
                 repo.getVehicle();
+                for (Vehicle v : repo.getList()){
+                    System.out.println(v.toCSV());
+                }
             }else if(s.split(" ")[0].equals("rent")){
                 repo.rentVehicle(Integer.parseInt(s.split(" ")[1]),userRepo);
             }else if(s.split(" ")[0].equals("return")){

@@ -79,6 +79,9 @@ public class VehicleRepository implements IVehicleRepositotry{
                     save();
                     getVehicle();
                     return;
+                }else{
+                    System.out.println("Can't rent that vehicle");
+                    break;
                 }
             }
             save();
@@ -151,9 +154,8 @@ public class VehicleRepository implements IVehicleRepositotry{
             vehicles.clear();
             for(Vehicle v : newVeh){
                 vehicles.add(v);
-                System.out.println(v.toCSV());
+                //System.out.println(v.toCSV());
             }
-            System.out.println();
         }catch (IOException e){
             e.printStackTrace();
         }
