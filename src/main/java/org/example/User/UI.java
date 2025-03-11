@@ -6,6 +6,7 @@ import org.example.vehicles.Vehicle;
 import org.example.vehicles.VehicleRepository;
 
 import java.util.Scanner;
+import java.util.UUID;
 
 public class UI {
 
@@ -41,6 +42,7 @@ public class UI {
             System.out.println("[show users] - shows list of users");
         }
 
+        repo.getVehicle();
         String s = "";
         while(!s.equals("bye")) {
             s = scanner.nextLine();
@@ -53,10 +55,10 @@ public class UI {
                                 Integer.parseInt(s.split(" ")[4]),
                                 Integer.parseInt(s.split(" ")[5]),
                                 false,
-                                repo.getSize()+1
+                                UUID.randomUUID().toString()
                         );
                         repo.addVehicle(nCar,userRepo.getUser());
-                    }else if (s.split(" ")[1].equals("Car")){
+                    }else if (s.split(" ")[1].equals("Motorcycle")){
                         Motorcycle nMot = new Motorcycle(
                                 s.split(" ")[2],
                                 s.split(" ")[3],
@@ -64,12 +66,14 @@ public class UI {
                                 Integer.parseInt(s.split(" ")[5]),
                                 false,
                                 s.split(" ")[6],
-                                repo.getSize()+1
+                                UUID.randomUUID().toString()
                         );
                         repo.addVehicle(nMot,userRepo.getUser());
+                    }else{
+                        System.out.println("Wrong Vehicle type");
                     }
                 }else if(s.split(" ")[0].equals("remove")){
-                    repo.removeVehicle(Integer.parseInt(s.split(" ")[1]),userRepo);
+                    repo.removeVehicle(s.split(" ")[1],userRepo);
                 }else if(s.equals("show users")){
                     userRepo.getUsers();
                     repo.getVehicle();
@@ -93,9 +97,9 @@ public class UI {
                     System.out.println(v.toCSV());
                 }
             }else if(s.split(" ")[0].equals("rent")){
-                repo.rentVehicle(Integer.parseInt(s.split(" ")[1]),userRepo);
+                repo.rentVehicle(s.split(" ")[1],userRepo);
             }else if(s.split(" ")[0].equals("return")){
-                repo.returnVehicle(Integer.parseInt(s.split(" ")[1]),userRepo);
+                repo.returnVehicle(s.split(" ")[1],userRepo);
             }else if(s.equals("show me")){
                 for (User u :userRepo.userList){
                     if (u.equals(userRepo.getUser())){

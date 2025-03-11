@@ -28,7 +28,7 @@ public class User {
         return role;
     }
 
-    public int getRentedHash() {
+    public long getRentedHash() {
         return rentedHash;
     }
 

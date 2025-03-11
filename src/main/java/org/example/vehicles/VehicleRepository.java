@@ -14,9 +14,6 @@ public class VehicleRepository implements IVehicleRepositotry{
 
     private List<Vehicle> vehicles = new ArrayList<>();
 
-    public int getSize(){
-        return vehicles.size();
-    }
     public List<Vehicle> getList(){
         return vehicles;
     }
@@ -38,11 +35,11 @@ public class VehicleRepository implements IVehicleRepositotry{
         }
     }
     @Override
-    public void removeVehicle(int id, UserRepository userRepo){
+    public void removeVehicle(String id, UserRepository userRepo){
         if (userRepo.getUser().getRole() == 0){
             boolean removed = false;
             for (Vehicle v : vehicles){
-                if (v.ID == id) {
+                if (v.ID.equals(id)) {
                     vehicles.remove(vehicles.indexOf(v));
                     for (User u : userRepo.userList){
                         if (u.getRentedHash() == v.hashCode()){
@@ -64,10 +61,10 @@ public class VehicleRepository implements IVehicleRepositotry{
     }
 
     @Override
-    public void rentVehicle(int id,UserRepository userRepo){
+    public void rentVehicle(String id,UserRepository userRepo){
         if (userRepo.getUser().getRentedHash() == -1){
             for(Vehicle v : vehicles){
-                if ( v.ID == id && !v.rented){
+                if ( v.ID.equals(id) && !v.rented){
                     v.rented = true;
                     for (User u : userRepo.userList) {
                         if (u.equals(userRepo.getUser())){
@@ -91,12 +88,12 @@ public class VehicleRepository implements IVehicleRepositotry{
         }
     }
     @Override
-    public void returnVehicle(int id,UserRepository userRepo){
+    public void returnVehicle(String id,UserRepository userRepo){
         if (userRepo.getUser().getRentedHash() != -1){
             var iterator = vehicles.iterator();
             while (iterator.hasNext()) {
                 Vehicle v = iterator.next();
-                if (v.ID == id && v.rented && v.hashCode() == userRepo.getUser().getRentedHash()) {
+                if (v.ID.equals(id) && v.rented && v.hashCode() == userRepo.getUser().getRentedHash()) {
                     v.rented = false;
 
                     for (User u : userRepo.userList) {
@@ -134,7 +131,7 @@ public class VehicleRepository implements IVehicleRepositotry{
                             Integer.parseInt(datas[4]),
                             Integer.parseInt(datas[5]),
                             Boolean.parseBoolean(datas[6]),
-                            Integer.parseInt(datas[1])
+                            datas[1]
                     );
                     newVeh.add(car);
                 }else if (Integer.parseInt(datas[0]) == 2){
@@ -145,7 +142,7 @@ public class VehicleRepository implements IVehicleRepositotry{
                             Integer.parseInt(datas[5]),
                             Boolean.parseBoolean(datas[6]),
                             datas[7],
-                            Integer.parseInt(datas[1])
+                            datas[1]
                     );
                     newVeh.add(mt);
                 }

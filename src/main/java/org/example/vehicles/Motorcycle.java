@@ -4,7 +4,7 @@ public class Motorcycle extends Vehicle{
     public String category;
 
 
-    public Motorcycle(String b, String m, int y,int p, Boolean r,String cat, int id) {
+    public Motorcycle(String b, String m, int y,int p, Boolean r,String cat, String id) {
         super(b, m, y,p, r, id);
         classType = 2;
         category = cat;

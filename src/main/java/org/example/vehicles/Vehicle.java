@@ -1,5 +1,6 @@
 package org.example.vehicles;
 
+import java.math.BigInteger;
 import java.util.Objects;
 
 public abstract class Vehicle {
@@ -10,9 +11,9 @@ public abstract class Vehicle {
     public int year;
     public int price;
     public Boolean rented;
-    public int ID;
+    public String ID;
 
-    public Vehicle(String b, String m,int y,int p,Boolean r,int id){
+    public Vehicle(String b, String m,int y,int p,Boolean r,String id){
         brand = b;
         model = m;
         year = y;

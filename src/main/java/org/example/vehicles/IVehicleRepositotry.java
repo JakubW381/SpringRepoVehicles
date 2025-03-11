@@ -8,10 +8,10 @@ import java.util.List;
 
 public interface IVehicleRepositotry {
 
-    void rentVehicle(int id, UserRepository userRepo);
-    void returnVehicle(int id,UserRepository userRepo);
+    void rentVehicle(String id, UserRepository userRepo);
+    void returnVehicle(String id,UserRepository userRepo);
     void getVehicle();
     void save();
     void addVehicle(Vehicle veh,User user);
-    void removeVehicle(int id,UserRepository userRepo);
+    void removeVehicle(String id,UserRepository userRepo);
 }

@@ -1,5 +1,5 @@
-1;1;volvo;a5;1996;2000000;true;
-1;3;audi;a324;2010;3000;false;
-1;5;audi;a324;2010;3000;false;
-2;4;kawasaki;ninja;2015;300053;true;a1;
-1;6;audi;a7;2017;219191;false;
+1;d70cc81a-ece1-4619-bce7-eca20e963ba1;Volvo;a5;1996;200000;false;
+1;5ccf0c32-e529-48bb-814d-fe4c1a91174d;Audi;a324;2010;30000;false;
+1;9f777f9f-ab4d-4be1-90c2-d9669ba31295;Citroen;c4;2015;20000;false;
+2;a0620490-c8e6-4401-9276-859e5f8eb8d5;Kawasaki;Ninja;2015;300000;false;a2;
+2;64336449-2e07-4dc6-9a40-30b4aac56b7a;Yamaha;c432;2025;60000;false;a1;
