@@ -1,8 +1,11 @@
 package org.example.User;
 
+import com.google.common.hash.Hashing;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -58,8 +61,22 @@ public class UserRepository implements IUserRepository {
     }
 
     @Override
-    public void save() {
+    public void addUser(String username, String pass) {
+        getUsers();
+        User nUser = new User(
+                username,
+                Hashing.sha256()
+                        .hashString(pass, StandardCharsets.UTF_8)
+                        .toString(),
+                1,
+                -1
+        );
+        userList.add(nUser);
+        save();
+    }
 
+    @Override
+    public void save() {
         try {
             File fold = new File("src/userList.txt");
             fold.delete();
