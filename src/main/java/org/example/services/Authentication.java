@@ -2,13 +2,20 @@ package org.example.services;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.example.models.User;
-import org.example.repositories.implementations.UserJsonRepository;
+import org.example.repositories.UserRepository;
+import org.example.repositories.implementations.json.UserJsonRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public class Authentication {
 
-    UserJsonRepository userRepo = new UserJsonRepository();
+    UserRepository userRepo;
+
+    public Authentication(UserRepository userRepo) {
+        this.userRepo = userRepo;
+    }
+    private User currentUser;
 
     public  User getCurrentUser() {
         return currentUser;
@@ -18,7 +25,7 @@ public class Authentication {
         this.currentUser = currentUser;
     }
 
-    private User currentUser;
+
 
     public boolean login(String username, String password) {
         Optional<User> user = userRepo.findByLogin(username);
@@ -47,5 +54,10 @@ public class Authentication {
             return login(username, password);
         }
         return false;
+    }
+
+
+    public List<User> findAll() {
+        return userRepo.findAll();
     }
 }

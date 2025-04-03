@@ -20,6 +20,7 @@ public class Vehicle {
     public String model;
     public int year;
     public String plate;
+    public double price;
 
     @Builder.Default
     private Map<String ,Object> attributes = new HashMap<>();

@@ -2,11 +2,10 @@ package org.example.app;
 
 import org.example.models.Rental;
 import org.example.models.User;
-import org.example.repositories.implementations.RentalJsonRepository;
-import org.example.repositories.implementations.UserJsonRepository;
 import org.example.models.Vehicle;
-import org.example.repositories.implementations.VehicleJsonRepository;
 import org.example.services.Authentication;
+import org.example.services.RentalService;
+import org.example.services.VehicleService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,13 +13,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-public class UI {
+public class App {
 
-    public static void init(){
-        VehicleJsonRepository repo = new VehicleJsonRepository();
-        UserJsonRepository userRepo = new UserJsonRepository();
-        RentalJsonRepository rentalRepo = new RentalJsonRepository();
-        Authentication auth = new Authentication();
+    private final Authentication authService;
+    private final VehicleService vehicleService;
+    private final RentalService rentalService;
+    private final Scanner scanner = new Scanner(System.in);
+
+    public App(Authentication authService, VehicleService vehicleService, RentalService rentalService) {
+        this.authService = authService;
+        this.vehicleService = vehicleService;
+        this.rentalService = rentalService;
+    }
+
+    public void run() {
         System.out.println("Login or Register?");
         Scanner scanner = new Scanner(System.in);
 
@@ -31,7 +37,7 @@ public class UI {
             String login = scanner.nextLine();
             System.out.println("Password:");
             String pass = scanner.nextLine();
-            if(auth.login(login,pass) == false){
+            if(authService.login(login,pass) == false){
                 return;
             }
         } else if (s.toLowerCase().equals("register")) {
@@ -39,32 +45,32 @@ public class UI {
             String login = scanner.nextLine();
             System.out.println("Password:");
             String pass = scanner.nextLine();
-            if(auth.register(login,pass) == false){
+            if(authService.register(login,pass) == false){
                 return;
             }
         }
 
-        System.out.println("Hello "+auth.getCurrentUser().getLogin());
+        System.out.println("Hello "+authService.getCurrentUser().getLogin());
 
         System.out.println("\nInstructions");
         System.out.println("[show] - to show all the vehicles\n" +
-                            "[rent <id == (second row value)>] - rent vehicle of given id\n" +
-                            "[return <id == (second row value)>] - return vehicle of given id\n"+
-                            "[show me] - shows information about you");
+                "[rent <id == (second row value)>] - rent vehicle of given id\n" +
+                "[return <id == (second row value)>] - return vehicle of given id\n"+
+                "[show me] - shows information about you");
 
-        if (auth.getCurrentUser().getRole().equals("ADMIN")){
+        if (authService.getCurrentUser().getRole().equals("ADMIN")){
             System.out.println("\nAdmin Instructions");
-            System.out.println("[add  <brand> <model> <year> <plate> <category>] - to add Vehicle");
+            System.out.println("[add  <brand> <model> <year> <plate> <price> <category>] - to add Vehicle");
             System.out.println("[remove <id>] - to remove Vehicle");
             System.out.println("[show users] - shows list of Users");
         }
 
-        for(Vehicle v : repo.findAll()){
-            Optional<List<Rental>> list = rentalRepo.findByVehicleId(v.getId());
+        for(Vehicle v : vehicleService.findAll()){
+            Optional<List<Rental>> list = rentalService.findByVehicleId(v.getId());
             boolean available = true;
             if (list.isPresent()){
                 for(Rental r : list.get().reversed()){
-                    if (r.getReturnDateTime().equals("-")){
+                    if (r.getReturnDateTime() == null){
                         available = false;
                         break;
                     }
@@ -76,14 +82,15 @@ public class UI {
         s = "";
         while(!s.equals("bye")) {
             s = scanner.nextLine();
-            if (auth.getCurrentUser().getRole().equals("ADMIN")){
+            if (authService.getCurrentUser().getRole().equals("ADMIN")){
                 if (s.split(" ")[0].equals("add")){
                     Vehicle veh = Vehicle.builder()
                             .brand(s.split(" ")[1])
                             .model(s.split(" ")[2])
                             .year(Integer.parseInt(s.split(" ")[3]))
                             .plate(s.split(" ")[4])
-                            .category(s.split(" ")[5])
+                            .price(Double.parseDouble(s.split(" ")[5]))
+                            .category(s.split(" ")[6])
                             .build();
                     System.out.println("To add Attribute <name:value> ; To end type 'finish' ");
                     while(true){
@@ -93,80 +100,66 @@ public class UI {
                         }
                         veh.addAttribute(s.split(":")[0],s.split(":")[1]);
                     }
-                    repo.save(veh);
+                    vehicleService.save(veh);
                     System.out.println("Car added");
                 }else if(s.split(" ")[0].equals("remove")){
-                    repo.deleteById(s.split(" ")[1]);
+                    vehicleService.deleteById(s.split(" ")[1]);
                 }else if(s.equals("show users")){
 
-                    for(User u : userRepo.findAll()){
+                    for(User u : authService.findAll()){
                         System.out.println(u.printUser());
-                        List<Rental> list = rentalRepo.findByUserId(u.getId()).get();
+                        List<Rental> list = rentalService.findByUserId(u.getId()).get();
                         for(Rental r : list){
-                            if (r.getReturnDateTime().equals("-")){
+                            if (r.getReturnDateTime() == null && u.getId().equals(r.getUserId())){
                                 System.out.println("Rent Date Time:" + r.getRentDateTime());
-                                System.out.println(repo.findById(r.getVehicleId()).get().printVehicle());
+                                System.out.println(vehicleService.findById(r.getVehicleId()).get().printVehicle());
                             }
                         }
                     }
                 }
             }
             if (s.equals("show")){
-                for(Vehicle v : repo.findAll()){
-                    Optional<List<Rental>> list = rentalRepo.findByVehicleId(v.getId());
-                    boolean available = true;
-                    if (list.isPresent()){
-                        for(Rental r : list.get().reversed()){
-                            if (r.getReturnDateTime().equals("-")){
-                                available = false;
-                                break;
-                            }
-                        }
+                for(Vehicle v : vehicleService.findAll()){
+                    Optional<Rental> available = rentalService.findByVehicleIdAndReturnDateIsNull(v.getId());
+                    if (!available.isPresent()){
+                        System.out.println(v.printVehicle());
                     }
-                    if (available) System.out.println(v.printVehicle());
                 }
             }else if(s.split(" ")[0].equals("rent")){
-                boolean rentable = true;
-                for(Rental r :rentalRepo.findAll()){
-                    if (r.getVehicleId().equals(s.split(" ")[1]) && r.getReturnDateTime().equals("-")){
-                        rentable = false;
-                        break;
-                    }
-                }
-                if (rentable){
+                Optional<Rental> rentable = rentalService.findByVehicleIdAndReturnDateIsNull(s.split(" ")[1]);
+                if (!rentable.isPresent()){
                     LocalDateTime now = LocalDateTime.now();
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                     Rental rental = Rental.builder()
                             .rentDateTime(now.format(formatter).toString())
-                            .returnDateTime("-")
-                            .userId(auth.getCurrentUser().getId())
+                            .userId(authService.getCurrentUser().getId())
                             .vehicleId(s.split(" ")[1])
                             .build();
-                    rentalRepo.save(rental);
+                    rentalService.save(rental);
                 }else{
                     System.out.println("This Car is not available");
                 }
             }else if(s.split(" ")[0].equals("return")){
-                    for(Rental r :rentalRepo.findAll()){
-                        if (r.getVehicleId().equals(s.split(" ")[1]) && r.getReturnDateTime().equals("-")){
-                            LocalDateTime now = LocalDateTime.now();
-                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                            r.setReturnDateTime(now.format(formatter));
-                            rentalRepo.save(r);
-                            System.out.println("Vehicle "+s.split(" ")[1] + " returned");
-                            break;
-                        }
+                for(Rental r :rentalService.findAll()){
+                    if (r.getVehicleId().equals(s.split(" ")[1]) && authService.getCurrentUser().getId().equals(r.getUserId()) && r.getReturnDateTime()== null){
+                        LocalDateTime now = LocalDateTime.now();
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                        r.setReturnDateTime(now.format(formatter));
+                        rentalService.save(r);
+                        System.out.println("Vehicle "+s.split(" ")[1] + " returned");
+                        break;
                     }
+                }
             }else if(s.equals("show me")){
                 System.out.println("User info ;id;username;hashedpassword;role;");
-                System.out.println(auth.getCurrentUser().printUser());
+                System.out.println(authService.getCurrentUser().printUser());
                 System.out.println("Rented Vehicles:\n");
-                List<Rental> list = rentalRepo.findByUserId(auth.getCurrentUser().getId()).get();
+                List<Rental> list = rentalService.findByUserId(authService.getCurrentUser().getId()).get();
 
                 for(Rental r : list){
-                    if (r.getReturnDateTime().equals("-")){
+                    if (r.getReturnDateTime()== null){
                         System.out.println("Rent Date Time:" + r.getRentDateTime());
-                        System.out.println(repo.findById(r.getVehicleId()).get().printVehicle());
+                        System.out.println(vehicleService.findById(r.getVehicleId()).get().printVehicle());
                     }
                 }
             }

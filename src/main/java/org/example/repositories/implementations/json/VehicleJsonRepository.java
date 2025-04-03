@@ -1,14 +1,14 @@
-package org.example.repositories.implementations;
+package org.example.repositories.implementations.json;
 
 import com.google.common.reflect.TypeToken;
-import org.example.util.JsonFileStorage;
+import org.example.db.JsonFileStorage;
 import org.example.models.User;
 import org.example.models.Vehicle;
-import org.example.repositories.VehicleRepositotry;
+import org.example.repositories.VehicleRepository;
 
 import java.util.*;
 
-public class VehicleJsonRepository implements VehicleRepositotry {
+public class VehicleJsonRepository implements VehicleRepository {
 
     private final List<Vehicle> vehicles;
 
@@ -70,12 +70,3 @@ public class VehicleJsonRepository implements VehicleRepositotry {
         storage.save(vehicles);
     }
 }
-
-
-
-//Id: 3
-//Category: Car
-//Brand: Toyota
-//Model: Corolla
-//Year: 2024
-//Plate: LU789

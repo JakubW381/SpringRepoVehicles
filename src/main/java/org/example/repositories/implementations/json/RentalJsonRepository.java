@@ -1,7 +1,7 @@
-package org.example.repositories.implementations;
+package org.example.repositories.implementations.json;
 
 import com.google.common.reflect.TypeToken;
-import org.example.util.JsonFileStorage;
+import org.example.db.JsonFileStorage;
 import org.example.models.Rental;
 import org.example.repositories.RentalRepository;
 
@@ -60,5 +60,13 @@ public class RentalJsonRepository implements RentalRepository {
     public void deleteById(String id) {
         rentalList.removeIf(v -> v.getId().equals(id));
         storage.save(rentalList);
+    }
+
+    @Override
+    public Optional<Rental> findByVehicleIdAndReturnDateIsNull(String vehicleId) {
+        return rentalList.stream()
+                .filter(r -> r.getVehicleId().equals(vehicleId))
+                .filter(r -> r.getReturnDateTime() == null)
+                .findFirst();
     }
 }

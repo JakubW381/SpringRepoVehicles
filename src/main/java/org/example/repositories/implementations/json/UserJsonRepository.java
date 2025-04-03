@@ -1,7 +1,7 @@
-package org.example.repositories.implementations;
+package org.example.repositories.implementations.json;
 
 import com.google.common.reflect.TypeToken;
-import org.example.util.JsonFileStorage;
+import org.example.db.JsonFileStorage;
 import org.example.models.User;
 import org.example.repositories.UserRepository;
 
