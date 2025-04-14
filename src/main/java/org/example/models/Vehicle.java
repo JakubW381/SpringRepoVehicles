@@ -1,8 +1,14 @@
 package org.example.models;
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,16 +18,24 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
+@Table(name = "vehicles")
 public class Vehicle {
 
+    @Id
+    @Column(nullable = false, unique = true)
     private String id;
     private String category;
     private String brand;
     public String model;
     public int year;
     public String plate;
+    @Column(columnDefinition = "NUMERIC")
     public double price;
 
+
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @Builder.Default
     private Map<String ,Object> attributes = new HashMap<>();
 

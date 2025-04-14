@@ -1,45 +1,31 @@
 package org.example.app;
 
-import org.example.repositories.RentalRepository;
-import org.example.repositories.UserRepository;
-import org.example.repositories.VehicleRepository;
-import org.example.repositories.implementations.jdbc.RentalJdbcRepository;
-import org.example.repositories.implementations.jdbc.UserJdbcRepository;
-import org.example.repositories.implementations.jdbc.VehicleJdbcRepository;
-import org.example.repositories.implementations.json.RentalJsonRepository;
-import org.example.repositories.implementations.json.UserJsonRepository;
-import org.example.repositories.implementations.json.VehicleJsonRepository;
-import org.example.services.Authentication;
-import org.example.services.RentalService;
-import org.example.services.VehicleService;
+import org.example.config.HibernateConfig;
+import org.example.repositories.hibernate.RentalHibernateRepository;
+import org.example.repositories.hibernate.UserHibernateRepository;
+import org.example.repositories.hibernate.VehicleHibernateRepository;
+
+import org.example.services.hibernate.AuthHibernateService;
+import org.example.services.hibernate.RentalHibernateService;
+import org.example.services.hibernate.VehicleHibernateService;
 
 public class Main {
     public static void main(String[] args) {
 
-        String storageType = "json";
+        UserHibernateRepository userRepo;
+        VehicleHibernateRepository vehicleRepo;
+        RentalHibernateRepository rentalRepo;
 
-        UserRepository userRepo;
-        VehicleRepository vehicleRepo;
-        RentalRepository rentalRepo;
+        userRepo = new UserHibernateRepository();
+        vehicleRepo = new VehicleHibernateRepository();
+        rentalRepo = new RentalHibernateRepository();
 
-        switch (storageType) {
-            case "jdbc" -> {
-                userRepo = new UserJdbcRepository();
-                vehicleRepo = new VehicleJdbcRepository();
-                rentalRepo = new RentalJdbcRepository();
-            }
-            case "json" -> {
-                userRepo = new UserJsonRepository();
-                vehicleRepo = new VehicleJsonRepository();
-                rentalRepo = new RentalJsonRepository();
-            }
-            default -> throw new IllegalArgumentException("Unknown storage type: " + storageType);
-        }
-        Authentication authService = new Authentication(userRepo);
-        VehicleService vehicleService = new VehicleService(vehicleRepo, rentalRepo);
-        RentalService rentalService = new RentalService(rentalRepo);
+        AuthHibernateService authService = new AuthHibernateService(userRepo);
+        VehicleHibernateService vehicleService = new VehicleHibernateService(rentalRepo,vehicleRepo);
+        RentalHibernateService rentalService = new RentalHibernateService(rentalRepo,vehicleRepo,userRepo);
 
-        App app = new App(authService, vehicleService, rentalService);
+        AppHibernate app = new AppHibernate(authService, vehicleService, rentalService);
         app.run();
+
     }
 }
