@@ -67,9 +67,14 @@ public class RentalHibernateService implements RentalService {
             tx.commit();
             return rental;
         }catch (Exception e){
-            if( tx != null && tx.isActive()){
-                tx.rollback();
-            }throw e;
+            if (tx != null) {
+                try {
+                    if (tx.isActive()) tx.rollback();
+                } catch (Exception ex) {
+                    System.err.println("Rollback failed: " + ex.getMessage());
+                }
+            }
+            throw e;
         }
     }
 
@@ -98,9 +103,14 @@ public class RentalHibernateService implements RentalService {
             return rental;
         }
         }catch (Exception e){
-            if( tx != null && tx.isActive()){
-                tx.rollback();
-            }throw e;
+            if (tx != null) {
+                try {
+                    if (tx.isActive()) tx.rollback();
+                } catch (Exception ex) {
+                    System.err.println("Rollback failed: " + ex.getMessage());
+                }
+            }
+            throw e;
         }
         return null;
     }
@@ -114,9 +124,14 @@ public class RentalHibernateService implements RentalService {
             tx.commit();
             return rentalHibernateRepository.findByUserId(id);
         }catch (Exception e){
-            if( tx != null && tx.isActive()){
-                tx.rollback();
-            }throw e;
+            if (tx != null) {
+                try {
+                    if (tx.isActive()) tx.rollback();
+                } catch (Exception ex) {
+                    System.err.println("Rollback failed: " + ex.getMessage());
+                }
+            }
+            throw e;
         }
     }
 
@@ -125,13 +140,18 @@ public class RentalHibernateService implements RentalService {
         Transaction tx = null;
         try(Session session = HibernateConfig.getSessionFactory().openSession()){
             tx = session.beginTransaction();
-            vehicleHibernateRepository.setSession(session);
+            rentalHibernateRepository.setSession(session);
             tx.commit();
             return rentalHibernateRepository.findAll();
         }catch (Exception e){
-            if( tx != null && tx.isActive()){
-                tx.rollback();
-            }throw e;
+            if (tx != null) {
+                try {
+                    if (tx.isActive()) tx.rollback();
+                } catch (Exception ex) {
+                    System.err.println("Rollback failed: " + ex.getMessage());
+                }
+            }
+            throw e;
         }
     }
 }

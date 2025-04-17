@@ -12,17 +12,14 @@ import org.example.services.hibernate.VehicleHibernateService;
 public class Main {
     public static void main(String[] args) {
 
-        UserHibernateRepository userRepo;
-        VehicleHibernateRepository vehicleRepo;
-        RentalHibernateRepository rentalRepo;
-
-        userRepo = new UserHibernateRepository();
-        vehicleRepo = new VehicleHibernateRepository();
-        rentalRepo = new RentalHibernateRepository();
+        UserHibernateRepository userRepo = new UserHibernateRepository();
+        VehicleHibernateRepository vehicleRepo = new VehicleHibernateRepository();
+        RentalHibernateRepository rentalRepo =new RentalHibernateRepository();
 
         AuthHibernateService authService = new AuthHibernateService(userRepo);
         VehicleHibernateService vehicleService = new VehicleHibernateService(rentalRepo,vehicleRepo);
         RentalHibernateService rentalService = new RentalHibernateService(rentalRepo,vehicleRepo,userRepo);
+
 
         AppHibernate app = new AppHibernate(authService, vehicleService, rentalService);
         app.run();

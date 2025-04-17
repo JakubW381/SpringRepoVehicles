@@ -8,8 +8,10 @@ import org.example.services.VehicleService;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class VehicleHibernateService implements VehicleService {
 
@@ -30,8 +32,12 @@ public class VehicleHibernateService implements VehicleService {
             tx.commit();
             return vehicleHibernateRepository.findAll();
         }catch (Exception e){
-            if( tx != null && tx.isActive()){
-                tx.rollback();
+            if (tx != null) {
+                try {
+                    if (tx.isActive()) tx.rollback();
+                } catch (Exception ex) {
+                    System.err.println("Rollback failed: " + ex.getMessage());
+                }
             }throw e;
         }
     }
@@ -46,51 +52,76 @@ public class VehicleHibernateService implements VehicleService {
             tx.commit();
             return vehicleHibernateRepository.findById(id);
         }catch (Exception e){
-            if( tx != null && tx.isActive()){
-                tx.rollback();
+            if (tx != null) {
+                try {
+                    if (tx.isActive()) tx.rollback();
+                } catch (Exception ex) {
+                    System.err.println("Rollback failed: " + ex.getMessage());
+                }
             }throw e;
         }
     }
 
     @Override
     public Vehicle save(Vehicle vehicle) {
+        if (vehicle.getId() == null) {
+            vehicle.setId(UUID.randomUUID().toString());
+        }
+
         Transaction tx = null;
-        try(Session session = HibernateConfig.getSessionFactory().openSession()){
+        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
             vehicleHibernateRepository.setSession(session);
 
-            Vehicle vehicle1 =vehicleHibernateRepository.save(vehicle);
+            Vehicle vehicle1 = vehicleHibernateRepository.save(vehicle);
 
             tx.commit();
             return vehicle1;
-        }catch (Exception e){
-            if( tx != null && tx.isActive()){
-                tx.rollback();
-            }throw e;
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    if (tx.isActive()) tx.rollback();
+                } catch (Exception ex) {
+                    System.err.println("Rollback failed: " + ex.getMessage());
+                }
+            }
+            throw e;
         }
     }
+
 
     @Override
     public List<Vehicle> findAvailableVehicles() {
         Transaction tx = null;
-        try(Session session = HibernateConfig.getSessionFactory().openSession()){
+        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
             vehicleHibernateRepository.setSession(session);
+            rentalHibernateRepository.setSession(session);
 
             List<Vehicle> list = vehicleHibernateRepository.findAll();
-            for(Vehicle v : list){
-                if(rentalHibernateRepository.findByVehicleIdAndReturnDateIsNull(v.getId()).isPresent()){
-                    list.remove(v);
+            Iterator<Vehicle> iterator = list.iterator();
+
+            while (iterator.hasNext()) {
+                Vehicle v = iterator.next();
+                if (rentalHibernateRepository.findByVehicleIdAndReturnDateIsNull(v.getId()).isPresent()) {
+                    iterator.remove();
                 }
             }
+
             tx.commit();
             return list;
-        }catch (Exception e){
-            if( tx != null && tx.isActive()){
-                tx.rollback();
-            }throw e;
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    if (tx.isActive()) tx.rollback();
+                } catch (Exception ex) {
+                    System.err.println("Rollback failed: " + ex.getMessage());
+                }
+            }
+            throw e;
         }
     }
+
 
     @Override
     public boolean isAvailable(String vehicleId) {
@@ -108,8 +139,12 @@ public class VehicleHibernateService implements VehicleService {
 
             tx.commit();
         }catch (Exception e){
-            if( tx != null && tx.isActive()){
-                tx.rollback();
+            if (tx != null) {
+                try {
+                    if (tx.isActive()) tx.rollback();
+                } catch (Exception ex) {
+                    System.err.println("Rollback failed: " + ex.getMessage());
+                }
             }throw e;
         }
     }

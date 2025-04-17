@@ -17,7 +17,7 @@ public class UserHibernateRepository implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        return session.createQuery("FROM Users", User.class).list();
+        return session.createQuery("FROM User", User.class).list();
     }
 
     @Override
@@ -28,8 +28,8 @@ public class UserHibernateRepository implements UserRepository {
     @Override
     public Optional<User> findByLogin(String login) {
         return session.createQuery("""
-        From Users u
-        Where u.users.login = :login
+        From User u
+        Where u.login = :login
         """, User.class).setParameter("login", login).uniqueResultOptional();
     }
 

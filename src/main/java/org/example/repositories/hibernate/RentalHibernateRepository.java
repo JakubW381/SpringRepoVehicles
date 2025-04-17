@@ -69,7 +69,7 @@ public class RentalHibernateRepository implements RentalRepository {
         Query<Rental> query = session.createQuery("""
                From Rental r
                Where r.vehicle.id = :vehicleId
-               And r.returnDate Is Null"""
+               And r.returnDateTime Is Null"""
                 ,Rental.class);
         query.setParameter("vehicleId", vehicleId);
         return query.uniqueResultOptional();

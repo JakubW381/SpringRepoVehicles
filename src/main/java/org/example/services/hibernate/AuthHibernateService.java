@@ -55,9 +55,10 @@ public class AuthHibernateService implements AuthService {
     public Optional<User> login(String login, String rawPassword) {
         Transaction tx = null;
 
-        try(Session session = HibernateConfig.getSessionFactory().openSession()){
+        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
             userHibernateRepository.setSession(session);
+
             Optional<User> userOpt = userHibernateRepository.findByLogin(login);
             if (userOpt.isEmpty()) {
                 return Optional.empty();
@@ -66,28 +67,46 @@ public class AuthHibernateService implements AuthService {
             User user = userOpt.get();
             BCrypt.Result result = BCrypt.verifyer().verify(rawPassword.toCharArray(), user.getPassword());
 
-            tx.commit();
-            return result.verified ? Optional.of(user) : Optional.empty();
+            if (!result.verified) {
+                return Optional.empty();
+            }
 
-        }catch (Exception e){
-            if( tx != null && tx.isActive()){
-                tx.rollback();
-            }throw e;
+            tx.commit();
+            return Optional.of(user);
+
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    if (tx.isActive()) tx.rollback();
+                } catch (Exception ex) {
+                    System.err.println("Rollback failed: " + ex.getMessage());
+                }
+            }
+            throw e;
         }
     }
+
+
 
     @Override
     public List<User> findAll() {
         Transaction tx = null;
-        try(Session session = HibernateConfig.getSessionFactory().openSession()){
+        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
             userHibernateRepository.setSession(session);
+            List<User> users = userHibernateRepository.findAll();
             tx.commit();
-            return userHibernateRepository.findAll();
-        }catch (Exception e){
-            if( tx != null && tx.isActive()){
-                tx.rollback();
-            }throw e;
+            return users;
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    if (tx.isActive()) tx.rollback();
+                } catch (Exception ex) {
+                    System.err.println("Rollback failed: " + ex.getMessage());
+                }
+            }
+            throw e;
         }
     }
+
 }

@@ -8,6 +8,7 @@ import org.example.services.RentalService;
 import org.example.services.VehicleService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class AppHibernate {
@@ -34,7 +35,12 @@ public class AppHibernate {
                 String login = scanner.nextLine();
                 System.out.println("Password:");
                 String pass = scanner.nextLine();
-                currentUser = authService.login(login,pass).get();
+                Optional<User> loginResult = authService.login(login, pass);
+                if (loginResult.isPresent()) {
+                    currentUser = loginResult.get();
+                } else {
+                    System.out.println("Błędny login lub hasło.");
+                }
 
             } else if (s.toLowerCase().equals("register")) {
                 System.out.println("Login:");
@@ -47,7 +53,13 @@ public class AppHibernate {
             e.printStackTrace();
         }
 
-        System.out.println("Hello "+currentUser.getLogin());
+        if (currentUser != null) {
+            System.out.println("Hello " + currentUser.getLogin());
+        } else {
+            System.out.println("Nie udało się zalogować ani zarejestrować użytkownika.");
+            return;
+        }
+
 
         System.out.println("\nInstructions");
         System.out.println("[show] - to show all the vehicles\n" +
